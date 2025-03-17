@@ -9,6 +9,7 @@ import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.mp3.Mp3Parser;
 import org.apache.tika.sax.BodyContentHandler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -28,7 +29,8 @@ public class ResourceService {
     @Autowired
     private RestTemplate restTemplate;
 
-    private final String SONG_SERVICE_URL = "http://song-service:8082/songs";
+    @Value("${song.service.url}")
+    private String songServiceUrl;
 
     public Long uploadResource(byte[] mp3Data) {
         Tika tika = new Tika();
@@ -67,7 +69,7 @@ public class ResourceService {
         songDTO.setDuration(formattedDuration);
         songDTO.setYear(releaseDate.length() >= 4 ? releaseDate.substring(0, 4) : "1900");
 
-        restTemplate.postForObject(SONG_SERVICE_URL, songDTO, SongDTO.class);
+        restTemplate.postForObject(songServiceUrl, songDTO, SongDTO.class);
 
         return resourceId;
     }
@@ -106,7 +108,7 @@ public class ResourceService {
             if (resourceRepository.existsById(id)) {
                 deletedIds.add(id);
                 resourceRepository.deleteById(id);
-                restTemplate.delete(SONG_SERVICE_URL + "?id=" + id);
+                restTemplate.delete(songServiceUrl + "?id=" + id);
             }
         });
 
