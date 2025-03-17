@@ -4,7 +4,6 @@ import com.learn.resourceservice.dto.SongDTO;
 import com.learn.resourceservice.entity.Resource;
 import com.learn.resourceservice.repository.ResourceRepository;
 import org.apache.tika.Tika;
-import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.mp3.Mp3Parser;
@@ -12,10 +11,8 @@ import org.apache.tika.sax.BodyContentHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.xml.sax.SAXException;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,9 +28,9 @@ public class ResourceService {
     @Autowired
     private RestTemplate restTemplate;
 
-    private final String SONG_SERVICE_URL = "http://localhost:8082/songs";
+    private final String SONG_SERVICE_URL = "http://song-service:8082/songs";
 
-    public Long uploadResource(byte[] mp3Data) throws IOException, TikaException, SAXException {
+    public Long uploadResource(byte[] mp3Data) {
         Tika tika = new Tika();
         String mimeType = tika.detect(mp3Data);
         if (!"audio/mpeg".equals(mimeType)) {
