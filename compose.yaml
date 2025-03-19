@@ -67,6 +67,8 @@ services:
       dockerfile: Dockerfile
     deploy:
       replicas: 2
+    ports:
+      - 8082-8083:8082
     environment:
       SPRING_DATASOURCE_URL: "${SONG_DB_URL}"
       SPRING_DATASOURCE_USERNAME: "${SONG_DB_USER}"
