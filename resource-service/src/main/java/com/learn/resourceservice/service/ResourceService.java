@@ -29,8 +29,15 @@ public class ResourceService {
     @Autowired
     private RestTemplate restTemplate;
 
-    @Value("${song.service.url}")
+    @Value("${songs.url}")
     private String songServiceUrl;
+
+    @Value("${songs.port}")
+    private String songServicePort;
+
+    public String getFullUrl() {
+        return "http://" + songServiceUrl + ":" + songServicePort + "/songs";
+    }
 
     public Long uploadResource(byte[] mp3Data) {
         Tika tika = new Tika();
@@ -68,8 +75,8 @@ public class ResourceService {
         songDTO.setAlbum(album);
         songDTO.setDuration(formattedDuration);
         songDTO.setYear(releaseDate.length() >= 4 ? releaseDate.substring(0, 4) : "1900");
-
-        restTemplate.postForObject(songServiceUrl, songDTO, SongDTO.class);
+        System.out.println("SONG url: " + getFullUrl());
+        restTemplate.postForObject(getFullUrl(), songDTO, SongDTO.class);
 
         return resourceId;
     }

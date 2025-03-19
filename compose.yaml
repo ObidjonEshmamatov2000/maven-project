@@ -1,6 +1,16 @@
 version: "3.9"
 
 services:
+  eureka-server:
+    build:
+      context: ./eureka-server
+      dockerfile: Dockerfile
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - microservices-net
+
   resource-db:
     image: postgres:${POSTGRES_VERSION}
     container_name: resource-db
@@ -40,9 +50,14 @@ services:
       SPRING_DATASOURCE_URL: "${RESOURCE_DB_URL}"
       SPRING_DATASOURCE_USERNAME: "${RESOURCE_DB_USER}"
       SPRING_DATASOURCE_PASSWORD: "${RESOURCE_DB_PASSWORD}"
-      SONG_SERVICE_URL: "http://song-service:8082/songs"
+      SONG_SERVICE_URL: "http://song-service:8082"
+      SONG_SERVICE_NAME: "song-service"
+      SONG_SERVICE_PORT: "8082"
+      EUREKA_URI: "eureka-server"
     depends_on:
       - resource-db
+      - song-service
+      - eureka-server
     networks:
       - microservices-net
 
@@ -50,15 +65,18 @@ services:
     build:
       context: ./song-service
       dockerfile: Dockerfile
-    container_name: song-service
-    ports:
-      - "8082:8082"
+    deploy:
+      replicas: 2
     environment:
       SPRING_DATASOURCE_URL: "${SONG_DB_URL}"
       SPRING_DATASOURCE_USERNAME: "${SONG_DB_USER}"
       SPRING_DATASOURCE_PASSWORD: "${SONG_DB_PASSWORD}"
+      SONG_SERVICE_NAME: "song-service"
+      SONG_SERVICE_PORT: "8082"
+      EUREKA_URI: "eureka-server"
     depends_on:
       - song-db
+      - eureka-server
     networks:
       - microservices-net
 
